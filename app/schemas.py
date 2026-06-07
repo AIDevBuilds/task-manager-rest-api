@@ -37,7 +37,7 @@ class TokenResponse(BaseModel):
 # ── Task ──────────────────────────────────────────────────────────────────────
 
 class TaskCreate(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1, max_length=5000)
     description: Optional[str] = None
     status: TaskStatus = TaskStatus.todo
 
