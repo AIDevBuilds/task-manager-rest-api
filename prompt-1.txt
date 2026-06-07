@@ -1,0 +1,2 @@
+I'm building a production-ready Task Manager REST API. Before writing any code,
+ask me any clarifying questions you need to make the right architectural decisions.

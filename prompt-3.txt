@@ -1,0 +1,7 @@
+Now do the following in order:
+
+1. Create a virtual environment and install all dependencies
+2. Run alembic init and configure it for async SQLAlchemy
+3. Generate the initial migration
+4. Start the dev server and confirm it runs without errors
+5. Show me the full OpenAPI docs URL I can test in the browser

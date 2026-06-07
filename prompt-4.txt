@@ -1,0 +1,10 @@
+Using httpx or curl commands I can run in the terminal, give me a
+step-by-step test sequence that:
+
+1. Registers a new user
+2. Logs in and captures the JWT
+3. Creates two tasks
+4. Lists all tasks
+5. Updates one task's status to "done"
+6. Deletes one task
+Show the expected response for each call.

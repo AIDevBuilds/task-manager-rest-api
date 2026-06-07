@@ -1,0 +1,83 @@
+Build a production-ready Task Manager REST API with the following exact spec:
+
+STACK:
+
+- Python 3.11+
+- FastAPI
+- SQLite via SQLAlchemy (async with aiosqlite)
+- JWT authentication via python-jose and passlib[bcrypt]
+- Pydantic v2 for all request/response models
+- Alembic for database migrations
+- Uvicorn as the ASGI server
+
+PROJECT STRUCTURE:
+app/
+main.py                        — FastAPI app init, middleware, router includes
+database.py                    — SQLAlchemy async engine and session
+models.py                      — SQLAlchemy ORM models (User, Task)
+schemas.py                     — Pydantic request/response schemas
+dependencies.py                — get_current_user and all shared FastAPI dependencies
+routers/
+auth.py                      — POST /auth/register, POST /auth/login
+tasks.py                     — HTTP routing only, no business logic
+services/
+auth_service.py              — create user, verify password, issue token
+task_service.py              — create, read, update, delete tasks + ownership enforcement
+repositories/
+user_repository.py           — DB queries: get_by_id, get_by_email, create_user
+task_repository.py           — DB queries: get_by_id, get_all_by_owner, create, update, delete
+README.md                        — setup instructions, env vars, all endpoints with example curl commands
+.gitignore                       — Python standard (venv, **pycache**, .env, *.db, .DS_Store, alembic/versions/*)
+
+STRICT LAYERING RULES — enforce these exactly:
+
+- Routers handle HTTP only: receive request, call service, return response. No DB access, no business logic.
+- Services contain all business logic: ownership checks, validation rules, error raising. No direct DB queries.
+- Repositories contain all DB queries: no business logic, no HTTP concerns.
+- Dependencies (get_current_user) live in dependencies.py only, imported wherever needed.
+
+ENDPOINTS:
+Auth:
+POST /auth/register   — { username, email, password } → { id, username, email }
+POST /auth/login      — { username, password } → { access_token, token_type }
+
+Tasks (all require Bearer token):
+GET    /tasks         — list all tasks for current user
+POST   /tasks         — create task { title, description?, status? }
+GET    /tasks/{id}    — get single task (must belong to current user)
+PUT    /tasks/{id}    — update task (must belong to current user)
+DELETE /tasks/{id}    — delete task (must belong to current user)
+
+Task model fields:
+id, title, description, status (enum: todo/in_progress/done),
+created_at, updated_at, owner_id
+
+SECURITY REQUIREMENTS:
+
+- All /tasks routes MUST inject get_current_user from dependencies.py via Depends()
+- get_current_user raises HTTP 401 if token is missing or invalid
+- Ownership check happens in task_service.py — if task.owner_id != current_user.id raise HTTP 404
+- Passwords hashed with bcrypt, never returned in any response
+- JWT secret loaded from environment variable JWT_SECRET
+
+ENVIRONMENT VARIABLES (loaded via python-dotenv):
+DATABASE_URL=sqlite+aiosqlite:///./tasks.db
+JWT_SECRET=your-secret-here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+DEPLOYMENT NOTES:
+
+- App must run on 0.0.0.0 and respect the $PORT environment variable
+- All environment variables loaded via python-dotenv
+- Database file path must be configurable via DATABASE_URL env var
+
+QUALITY REQUIREMENTS:
+
+- Every route has a proper HTTP status code (201 for creates, 204 for deletes, etc.)
+- All endpoints have Pydantic response_model set
+- No bare except clauses
+- Async throughout — no sync DB calls
+- Include a /health endpoint (no auth required) that returns { status: "ok" }
+
+Generate all files completely. Do not abbreviate or use placeholders.
