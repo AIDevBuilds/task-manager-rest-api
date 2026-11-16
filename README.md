@@ -1,6 +1,6 @@
 # Task Manager REST API
 
-A production-ready REST API built with FastAPI, SQLAlchemy (async), and JWT authentication.
+A reference REST API built with FastAPI, SQLAlchemy (async), and JWT authentication.
 
 ## Stack
 
